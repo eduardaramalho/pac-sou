@@ -20,6 +20,7 @@ interface Props {
   errors: Record<string, string>;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
+   disabled?: boolean
 }
 
 export const IdentificationForm: React.FC<Props> = ({ form, errors, onChange, onSubmit }) => (
@@ -104,6 +105,7 @@ export const IdentificationForm: React.FC<Props> = ({ form, errors, onChange, on
               <RadioGroup row name="turno" value={form.turno} onChange={onChange}>
                 <FormControlLabel value="Matutino" control={<Radio />} label="Matutino" />
                 <FormControlLabel value="Vespertino" control={<Radio />} label="Vespertino" />
+                <FormControlLabel value="Noturno" control={<Radio />} label="Noturno" />
               </RadioGroup>
               {errors.turno && (
                 <Typography color="error" variant="caption">

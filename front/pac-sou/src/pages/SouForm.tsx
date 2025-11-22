@@ -5,10 +5,16 @@ import { validateForm } from "../components/Validation";
 import { IdentificationForm } from "../components/IdentificationForm";
 import { AtendimentoForm } from "../components/AtendimentoForm";
 import { SuccessDialog } from "../components/SuccessDialog";
-import { FormMenu } from "../components/FormMenu";
+import { getUsuarioLogado, getPerfilUsuario } from "../helpers/authStorage";
 
 export default function SouForm() {
+  const usuarioLogado = getUsuarioLogado();
+  const perfil = getPerfilUsuario();
+
+  const storageKey = `sou_atendimentos_${usuarioLogado}`;
+
   const [form, setForm] = useState<SouFormData>({
+    id: "",
     nome: "",
     idade: "",
     dataNascimento: "",
@@ -32,41 +38,86 @@ export default function SouForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let { name, value } = e.target;
+
     if (name === "horario") {
       value = value.replace(/\D/g, "");
       if (value.length >= 3) value = `${value.slice(0, 2)}:${value.slice(2, 4)}`;
     }
+
     setForm((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleSubmit = (section: "form" | "atendimento") => (e: React.FormEvent) => {
-    e.preventDefault();
-    const validation = validateForm(section, form);
-    setErrors(validation);
-    if (Object.keys(validation).length === 0) setDialog(section);
-  };
+  const handleSubmit =
+    (section: "form" | "atendimento") => (e: React.FormEvent) => {
+      e.preventDefault();
+
+      const validation = validateForm(section, form);
+      setErrors(validation);
+      if (Object.keys(validation).length !== 0) return;
+
+      let currentId = form.id || crypto.randomUUID();
+      const salvos = JSON.parse(localStorage.getItem(storageKey) || "[]");
+
+      if (section === "form") {
+        const novo = {
+          ...form,
+          id: currentId,
+          usuario: usuarioLogado,
+          status: "rascunho",
+          data: new Date().toISOString(),
+        };
+
+        const atualizados = salvos.filter((a: any) => a.id !== currentId);
+        atualizados.push(novo);
+        localStorage.setItem(storageKey, JSON.stringify(atualizados));
+
+        setForm((prev) => ({ ...prev, id: currentId }));
+        setDialog("form");
+      }
+
+      if (section === "atendimento") {
+        const atualizados = salvos.map((a: any) =>
+          a.id === currentId
+            ? {
+                ...a,
+                ...form,
+                id: currentId,
+                usuario: usuarioLogado,
+                status: "completo",
+                data: new Date().toISOString(),
+              }
+            : a
+        );
+
+        const existe = atualizados.find((a: any) => a.id === currentId);
+
+        if (!existe) {
+          atualizados.push({
+            ...form,
+            id: currentId,
+            usuario: usuarioLogado,
+            status: "completo",
+            data: new Date().toISOString(),
+          });
+        }
+
+        localStorage.setItem(storageKey, JSON.stringify(atualizados));
+        setDialog("atendimento");
+      }
+    };
 
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "row",
-        alignItems: "flex-start",
-        justifyContent: "flex-start",
         backgroundColor: "#F9EFEF",
         minHeight: "100vh",
-        overflowY: "auto",
-        padding: 0,
-        margin: 0,
       }}
     >
-      {/* 🔹 Menu componentizado */}
-      <FormMenu />
-
-      {/* 🔹 Conteúdo principal */}
       <div style={{ flex: 1, padding: "40px 60px" }}>
-        <Container maxWidth="lg" disableGutters>
+        <Container maxWidth="lg">
           <Typography
             variant="body2"
             align="center"
@@ -90,24 +141,26 @@ export default function SouForm() {
             onSubmit={handleSubmit("form")}
           />
 
-          <AtendimentoForm
-            form={form}
-            errors={errors}
-            onChange={handleChange}
-            onSubmit={handleSubmit("atendimento")}
-          />
+          {perfil === "professor" && (
+            <AtendimentoForm
+              form={form}
+              errors={errors}
+              onChange={handleChange}
+              onSubmit={handleSubmit("atendimento")}
+            />
+          )}
 
           <SuccessDialog
             open={dialog === "form"}
-            title="SEU AGENDAMENTO FOI ENCAMINHADO!"
-            message="Aguarde o nosso contato via Teams para confirmação da data e horário."
+            title="IDENTIFICAÇÃO SALVA!"
+            message="Continue para registrar o atendimento completo."
             onClose={() => setDialog(null)}
           />
 
           <SuccessDialog
             open={dialog === "atendimento"}
             title="ATENDIMENTO SALVO COM SUCESSO!"
-            message="Este atendimento foi registrado no histórico de consultas."
+            message="O atendimento foi registrado no histórico de consultas."
             onClose={() => setDialog(null)}
           />
         </Container>

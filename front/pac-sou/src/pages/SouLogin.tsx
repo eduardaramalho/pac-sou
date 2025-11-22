@@ -4,7 +4,6 @@ import { Card, TextField, Button, InputAdornment } from "@mui/material";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import LockIcon from "@mui/icons-material/Lock";
 import logoTopo from "../assets/logo-catolica.png";
-// import logoCentro from "../assets/logo-catolica.png";
 
 export default function SouLogin() {
   const [usuario, setUsuario] = useState("");
@@ -12,17 +11,32 @@ export default function SouLogin() {
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Usuário:", usuario, "Senha:", senha);
-    navigate("/sou-form"); 
-  };
+  e.preventDefault();
+
+  const user = usuario.trim().toLowerCase();
+  const pass = senha.trim();
+
+  // 🔹 Validação de usuário + senha
+  if (user === "testecoordenador" && pass === "456") {
+    localStorage.setItem("perfil", "professor");
+    localStorage.setItem("usuario", usuario);
+    navigate("/sou-form");
+  } else if (user === "testealuno" && pass === "123") {
+    localStorage.setItem("perfil", "aluno");
+    localStorage.setItem("usuario", usuario);
+    navigate("/sou-form");
+  } else {
+    alert("Usuário ou senha inválidos.\n\nUse:\n• testeAluno / 123\n• testeCoordenador / 456");
+  }
+};
+
 
   return (
     <div
       className="min-h-screen flex flex-col"
       style={{ backgroundColor: "#F9EFEF", fontFamily: "Montserrat, sans-serif" }}
     >
-      {/* TOPO */}
+      {/* 🔹 TOPO */}
       <header className="bg-[#8A1C1C] py-4 px-6 flex items-center shadow-md">
         <img
           src={logoTopo}
@@ -32,7 +46,7 @@ export default function SouLogin() {
         />
       </header>
 
-      {/* CONTEÚDO CENTRAL */}
+      {/* 🔹 CONTEÚDO CENTRAL */}
       <main className="flex-1 flex items-center justify-center">
         <Card
           elevation={12}
@@ -46,7 +60,7 @@ export default function SouLogin() {
             color: "white",
           }}
         >
-          {/* LOGO CENTRAL */}
+          {/* 🔸 LOGO CENTRAL */}
           <div className="flex justify-center mb-6">
             <img
               src={logoTopo}
@@ -55,12 +69,12 @@ export default function SouLogin() {
             />
           </div>
 
-          {/* TÍTULO */}
+          {/* 🔸 TÍTULO */}
           <h2 className="text-[#FFFFFF] font-bold text-xl tracking-[0.2em] mb-6">
             PORTAL DO ALUNO
           </h2>
 
-          {/* FORMULÁRIO */}
+          {/* 🔸 FORMULÁRIO */}
           <form
             onSubmit={handleSubmit}
             className="flex flex-col items-center justify-center w-full"
@@ -153,7 +167,6 @@ export default function SouLogin() {
               ACESSAR
             </Button>
           </form>
-
         </Card>
       </main>
     </div>

@@ -1,4 +1,5 @@
 export interface SouFormData {
+  id?: string;
   nome: string;
   idade: string;
   dataNascimento: string;
@@ -16,5 +17,3 @@ export interface SouFormData {
   observacoes: string;
   profissional: string;
 }
-
-export type SouSection = "form" | "atendimento";

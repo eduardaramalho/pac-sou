@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { Box, Typography } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import PersonIcon from "@mui/icons-material/Person";
-import SchoolIcon from "@mui/icons-material/School";
 import HistoryIcon from "@mui/icons-material/History";
+import SearchIcon from "@mui/icons-material/Search";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 interface FormMenuProps {
   onNavigate?: (route: string) => void;
@@ -11,6 +12,12 @@ interface FormMenuProps {
 
 export const FormMenu: React.FC<FormMenuProps> = ({ onNavigate }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const perfil = localStorage.getItem("perfil");
+
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = "/login";
+  };
 
   return (
     <Box
@@ -28,7 +35,7 @@ export const FormMenu: React.FC<FormMenuProps> = ({ onNavigate }) => {
         boxShadow: "2px 0 5px rgba(0,0,0,0.1)",
       }}
     >
-      {/* 🔹 Ícone do menu — agora alinhado com os demais */}
+      {/* Botão principal */}
       <Box
         sx={{
           display: "flex",
@@ -38,71 +45,37 @@ export const FormMenu: React.FC<FormMenuProps> = ({ onNavigate }) => {
           px: menuOpen ? 3 : 0,
           py: 1.5,
           cursor: "pointer",
-          transition: "all 0.2s ease-in-out",
-          "&:hover": {
-            backgroundColor: "#A32929",
-          },
+          "&:hover": { backgroundColor: "#A32929" },
         }}
         onClick={() => setMenuOpen((prev) => !prev)}
       >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            minWidth: menuOpen ? "28px" : "100%",
-          }}
-        >
-          <MenuIcon sx={{ color: "#fff", fontSize: 28 }} />
-        </Box>
+        <MenuIcon sx={{ color: "#fff", fontSize: 28 }} />
         {menuOpen && (
-          <Typography
-            variant="body1"
-            sx={{
-              fontWeight: 500,
-              whiteSpace: "nowrap",
-              lineHeight: 1,
-            }}
-          >
+          <Typography variant="body1" sx={{ fontWeight: 500 }}>
             Menu
           </Typography>
         )}
       </Box>
 
-      {/* 🔹 Itens do menu */}
-      <Box
-        sx={{
-          mt: 2,
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
-        }}
-      >
-        <MenuItem
-          icon={<PersonIcon />}
-          label="Alunos"
-          open={menuOpen}
-          onClick={() => onNavigate?.("/alunos")}
-        />
-        <MenuItem
-          icon={<SchoolIcon />}
-          label="Coordenadores"
-          open={menuOpen}
-          onClick={() => onNavigate?.("/coordenadores")}
-        />
-        <MenuItem
-          icon={<HistoryIcon />}
-          label="Histórico"
-          open={menuOpen}
-          onClick={() => onNavigate?.("/historico")}
-        />
+      {/* Opções dinâmicas */}
+      <Box sx={{ mt: 2, width: "100%", display: "flex", flexDirection: "column", gap: 2 }}>
+        {perfil === "aluno" && (
+          <>
+            <MenuItem icon={<PersonIcon />} label="Identificação" open={menuOpen} onClick={() => onNavigate?.("/sou-form")} />
+            <MenuItem icon={<HistoryIcon />} label="Meu Histórico" open={menuOpen} onClick={() => onNavigate?.("/historico")} />
+          </>
+        )}
+
+        {perfil === "professor" && (
+          <MenuItem icon={<SearchIcon />} label="Buscar Aluno" open={menuOpen} onClick={() => onNavigate?.("/buscar-aluno")} />
+        )}
+
+        <MenuItem icon={<LogoutIcon />} label="Sair" open={menuOpen} onClick={handleLogout} />
       </Box>
     </Box>
   );
 };
 
-/* 🔹 Subcomponente MenuItem */
 const MenuItem = ({
   icon,
   label,
@@ -113,48 +86,26 @@ const MenuItem = ({
   label: string;
   open: boolean;
   onClick?: () => void;
-}) => {
-  return (
-    <Box
-      onClick={onClick}
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: open ? "flex-start" : "center",
-        gap: open ? 2 : 0,
-        color: "#fff",
-        px: open ? 3 : 0,
-        py: 1.5,
-        cursor: "pointer",
-        transition: "all 0.2s ease-in-out",
-        "&:hover": {
-          backgroundColor: "#A32929",
-        },
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minWidth: open ? "28px" : "100%",
-        }}
-      >
-        {icon}
-      </Box>
-
-      {open && (
-        <Typography
-          variant="body1"
-          sx={{
-            fontWeight: 500,
-            whiteSpace: "nowrap",
-            lineHeight: 1,
-          }}
-        >
-          {label}
-        </Typography>
-      )}
-    </Box>
-  );
-};
+}) => (
+  <Box
+    onClick={onClick}
+    sx={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: open ? "flex-start" : "center",
+      gap: open ? 2 : 0,
+      color: "#fff",
+      px: open ? 3 : 0,
+      py: 1.5,
+      cursor: "pointer",
+      "&:hover": { backgroundColor: "#A32929" },
+    }}
+  >
+    {icon}
+    {open && (
+      <Typography variant="body1" sx={{ fontWeight: 500, whiteSpace: "nowrap" }}>
+        {label}
+      </Typography>
+    )}
+  </Box>
+);
