@@ -1,0 +1,21 @@
+CREATE TABLE forms (
+ id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    age INTEGER,
+    birth_date DATE,
+    course VARCHAR(255),
+    phase VARCHAR(50),
+    shift VARCHAR(50),
+    difficulty VARCHAR(100),
+    discipline BOOLEAN,
+    explanation BOOLEAN,
+    room BOOLEAN,
+    colleagues BOOLEAN,
+    preference VARCHAR(255),
+    time TIME,
+    date DATE,
+    observations TEXT NULL,
+    profissional VARCHAR(255) NULL,
+    user_id INTEGER,
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES "users"(id)
+);
