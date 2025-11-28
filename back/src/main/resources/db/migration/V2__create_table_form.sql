@@ -16,7 +16,5 @@ CREATE TABLE forms (
     date DATE,
     observations TEXT NULL,
     profissional VARCHAR(255) NULL,
-    user_id INTEGER,
-    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES "users"(id)
-    
+    user_id INTEGER
 );
